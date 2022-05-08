@@ -1,18 +1,17 @@
-import * as React from "react";
-import * as ReactMarkdown from "react-markdown";
-import styled from "styled-components";
-import { Button } from "../components/button";
-import { useStateWithStorage } from "../hooks/use_state_with_storage";
-import { putMemo } from "../indexeddb/memos";
-import { SaveModal } from "../components/save_modal";
-import { Link } from "react-router-dom";
-import { Header } from "../components/header";
+import * as React from 'react';
 
-import TestWorker from "worker-loader!../worker/test.ts";
+import styled from 'styled-components';
+import { Button } from '../components/button';
+import { useStateWithStorage } from '../hooks/use_state_with_storage';
+import { putMemo } from '../indexeddb/memos';
+import { SaveModal } from '../components/save_modal';
+import { Link } from 'react-router-dom';
+import { Header } from '../components/header';
 
-// const { useState } = React;
-const testWorker = new TestWorker();
-const { useState, useEffect } = React;
+import ConvertMarkdownWorker from 'worker-loader!../worker/convert_markdown_worker';
+
+const convertMarkdownWorker = new ConvertMarkdownWorker();
+const { useState, useEffect } = React; //←分割代入？
 
 interface Props {
   text: string;
@@ -61,15 +60,16 @@ export const Editor: React.FC<Props> = (props) => {
   const { text, setText } = props;
 
   const [showModal, setShowModal] = useState(false);
+  const [html, setHTML] = useState('');
 
   useEffect(() => {
-    testWorker.onmessage = (e) => {
-      console.log("Main thread Received:", e.data);
+    convertMarkdownWorker.onmessage = (e) => {
+      setHTML(e.data.html);
     };
   }, []);
 
   useEffect(() => {
-    testWorker.postMessage(text);
+    convertMarkdownWorker.postMessage(text);
   }, [text]);
 
   return (
@@ -86,7 +86,7 @@ export const Editor: React.FC<Props> = (props) => {
           value={text}
         />
         <Preview>
-          <ReactMarkdown>{text}</ReactMarkdown>
+          <div dangerouslySetInnerHTML={{ __html: html }} />
         </Preview>
       </Wrapper>
       {showModal && (
