@@ -13,6 +13,9 @@ const HeaderWrapper = styled.header`
 const HeaderTitle = styled.div`
   font-size: 1.5rem;
 `;
+const HeaderAreaHref = styled.span`
+  width: 60%;
+`
 
 const HeaderControl = styled.div`
   align-content: center;
@@ -33,7 +36,9 @@ interface Props {
 export const Header: React.FC<Props> = (props) => (
   <HeaderWrapper>
     <HeaderTitle>{props.title}</HeaderTitle>
-
+    <HeaderAreaHref>
+      <a target="_blank" href="https://backlog.com/ja/blog/how-to-write-markdown/">Markdownの書き方</a>
+    </HeaderAreaHref>
     <HeaderControl>{props.children}</HeaderControl>
   </HeaderWrapper>
 );
